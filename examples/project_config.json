@@ -1,0 +1,9 @@
+{
+  "max_conversation_history": 100,
+  "backup_enabled": true,
+  "backup_interval": 3600,
+  "compression_enabled": false,
+  "auto_detect_project_type": true,
+  "search_index_enabled": true,
+  "verbose_logging": false
+}

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "project-memory": {
+      "command": "/path/to/project-memory-mcp/run.sh",
+      "args": [
+        "--project-root", "/path/to/your/project"
+      ]
+    }
+  }
+}
