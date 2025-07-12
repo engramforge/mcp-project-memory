@@ -1,5 +1,5 @@
 {
-  "max_conversation_history": 100,
+  "max_conversation_history": 1000,
   "backup_enabled": true,
   "backup_interval": 3600,
   "compression_enabled": false,

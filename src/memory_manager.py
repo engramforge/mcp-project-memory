@@ -12,6 +12,7 @@ Handles persistent storage and retrieval of project memory including:
 
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -57,8 +58,8 @@ class ProjectMemoryManager:
         self.memory = self._load_memory()
         
         if self.verbose:
-            print(f"📁 Memory directory: {self.memory_dir}")
-            print(f"📝 Memory files initialized")
+            print(f"📁 Memory directory: {self.memory_dir}", file=sys.stderr)
+            print(f"📝 Memory files initialized", file=sys.stderr)
     
     def _load_config(self, config_file: Optional[str]) -> Dict[str, Any]:
         """Load configuration from file or use defaults."""
@@ -77,7 +78,7 @@ class ProjectMemoryManager:
                 default_config.update(user_config)
             except Exception as e:
                 if self.verbose:
-                    print(f"⚠️ Warning: Could not load config file {config_file}: {e}")
+                    print(f"⚠️ Warning: Could not load config file {config_file}: {e}", file=sys.stderr)
         
         return default_config
     
@@ -140,7 +141,7 @@ class ProjectMemoryManager:
                 return self._ensure_memory_structure(memory)
             except Exception as e:
                 if self.verbose:
-                    print(f"⚠️ Warning: Could not load memory file: {e}")
+                    print(f"⚠️ Warning: Could not load memory file: {e}", file=sys.stderr)
         
         # Initialize new memory structure
         project_info = self._detect_project_info()
@@ -219,7 +220,7 @@ class ProjectMemoryManager:
                 
         except Exception as e:
             if self.verbose:
-                print(f"❌ Error saving memory: {e}")
+                print(f"❌ Error saving memory: {e}", file=sys.stderr)
             raise
     
     def _create_backup(self):
@@ -242,7 +243,7 @@ class ProjectMemoryManager:
                     
         except Exception as e:
             if self.verbose:
-                print(f"⚠️ Warning: Could not create backup: {e}")
+                print(f"⚠️ Warning: Could not create backup: {e}", file=sys.stderr)
     
     def get_current_context(self) -> Dict[str, Any]:
         """Get comprehensive current project context."""
@@ -298,7 +299,7 @@ class ProjectMemoryManager:
         self._save_memory()
         
         if self.verbose:
-            print(f"📊 Updated {component}: {status}")
+            print(f"📊 Updated {component}: {status}", file=sys.stderr)
     
     def add_architecture_decision(self, decision: str, rationale: str, impact: str = "", alternatives: List[str] = None):
         """Record an architecture decision."""
@@ -321,7 +322,7 @@ class ProjectMemoryManager:
         self._save_memory()
         
         if self.verbose:
-            print(f"🏗️ Recorded decision: {decision}")
+            print(f"🏗️ Recorded decision: {decision}", file=sys.stderr)
     
     def add_working_solution(self, problem: str, solution: str, command: str = "", tags: List[str] = None):
         """Record a working solution for future reference."""
@@ -354,7 +355,7 @@ class ProjectMemoryManager:
         self._save_memory()
         
         if self.verbose:
-            print(f"🔧 Recorded solution: {problem}")
+            print(f"🔧 Recorded solution: {problem}", file=sys.stderr)
     
     def update_priorities(self, new_priorities: List[str]):
         """Update current project priorities."""
@@ -376,7 +377,7 @@ class ProjectMemoryManager:
         self._save_memory()
         
         if self.verbose:
-            print(f"🎯 Updated priorities ({len(new_priorities)} items)")
+            print(f"🎯 Updated priorities ({len(new_priorities)} items)", file=sys.stderr)
     
     def log_conversation_context(self, summary: str, decisions_made: List[str] = None, solutions_found: List[str] = None):
         """Log context from a conversation for future reference."""
@@ -402,7 +403,7 @@ class ProjectMemoryManager:
         self._save_memory()
         
         if self.verbose:
-            print(f"💬 Logged conversation: {summary[:50]}...")
+            print(f"💬 Logged conversation: {summary[:50]}...", file=sys.stderr)
     
     def search_memory(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Search through project memory for relevant information."""

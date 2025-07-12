@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 # mcp-project-memory
 Project memory MCP server for Claude desktop
-=======
 # 🧠 Project Memory MCP Server
 
 **Give AI assistants persistent memory about your development projects**
@@ -303,4 +301,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Transform your AI assistant from a tool into a knowledgeable team member with Project Memory MCP Server.**
->>>>>>> 9ee9d59 (Initial commit: Project Memory MCP Server)
