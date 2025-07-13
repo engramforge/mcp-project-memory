@@ -163,8 +163,8 @@ project-memory-mcp/
 │   ├── usage.md              # Comprehensive usage guide
 │   └── api.md                # API documentation
 ├── examples/
-│   ├── config_examples/       # Configuration examples
-│   └── usage_examples/        # Usage examples
+│   ├── claude_desktop_config.json  # Claude Desktop MCP configuration
+│   └── project_config.json    # Project memory configuration example
 └── tests/
     ├── test_memory.py         # Memory management tests
     ├── test_tools.py          # Tool functionality tests
@@ -172,6 +172,34 @@ project-memory-mcp/
 ```
 
 ## Configuration
+
+The Project Memory MCP Server can be configured using a `project_config.json` file. See `examples/project_config.json` for a complete example.
+
+### Example Configuration
+
+```json
+{
+  "max_conversation_history": 1000,
+  "backup_enabled": true,
+  "backup_interval": 3600,
+  "compression_enabled": false,
+  "auto_detect_project_type": true,
+  "search_index_enabled": true,
+  "verbose_logging": false
+}
+```
+
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `max_conversation_history` | number | 100 | Maximum number of conversation entries to retain in memory |
+| `backup_enabled` | boolean | true | Enable automatic backups of project memory |
+| `backup_interval` | number | 3600 | Backup interval in seconds (3600 = 1 hour) |
+| `compression_enabled` | boolean | false | Enable compression for memory files to save disk space |
+| `auto_detect_project_type` | boolean | true | Automatically detect project type based on files and structure |
+| `search_index_enabled` | boolean | true | Enable full-text search indexing for faster memory searches |
+| `verbose_logging` | boolean | false | Enable detailed logging for debugging and development |
 
 ### Basic Configuration
 ```json
@@ -194,10 +222,11 @@ project-memory-mcp/
   "backup_enabled": true,
   "backup_interval": 3600,
   "backup_directory": ".project_memory/backups",
-  "max_conversation_history": 100,
+  "max_conversation_history": 1000,
   "search_index_enabled": true,
   "compression_enabled": false,
-  "encryption_enabled": false
+  "auto_detect_project_type": true,
+  "verbose_logging": false
 }
 ```
 

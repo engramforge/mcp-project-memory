@@ -1,9 +1,12 @@
 {
   "mcpServers": {
     "project-memory": {
-      "command": "/path/to/project-memory-mcp/run.sh",
+      "command": "node",
       "args": [
-        "--project-root", "/path/to/your/project"
+        "/path/to/project-memory-mcp/nodejs/dist/index.js",
+        "--project-root", "/path/to/your/project",
+        "--memory-dir", ".project_memory",
+        "--verbose"
       ]
     }
   }
