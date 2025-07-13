@@ -5,7 +5,7 @@ Project memory MCP server for Claude desktop
 **Give AI assistants persistent memory about your development projects**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Node.js 18+](https://img.shields.io/badge/node.js-18+-blue.svg)](https://nodejs.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io/)
 
 ## Overview
@@ -51,18 +51,35 @@ Each discussion builds on previous knowledge, creating increasingly valuable AI 
 
 ## Quick Start
 
-### Installation
+### Option 1: Quick Start with npx (Recommended)
+
+Run the server for any project without installation:
+
+```bash
+npx project-memory-mcp --project-root /path/to/your/project
+```
+
+### Option 2: Global Installation
+
+Install globally for repeated use:
+
+```bash
+npm install -g project-memory-mcp
+project-memory-mcp --project-root /path/to/your/project
+```
+
+### Option 3: Development Installation
 
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/yourusername/project-memory-mcp.git
-   cd project-memory-mcp
+   cd project-memory-mcp/nodejs
    ```
 
-2. **Run the setup script**:
+2. **Install dependencies**:
    ```bash
-   chmod +x setup.sh
-   ./setup.sh
+   npm install
+   npm run build
    ```
 
 3. **Configure Claude Desktop**:
@@ -71,8 +88,12 @@ Each discussion builds on previous knowledge, creating increasingly valuable AI 
    {
      "mcpServers": {
        "project-memory": {
-         "command": "/path/to/project-memory-mcp/run.sh",
-         "args": ["--project-root", "/path/to/your/project"]
+         "command": "npx",
+         "args": [
+           "project-memory-mcp",
+           "--project-root", "/path/to/your/project",
+           "--verbose"
+         ]
        }
      }
    }
@@ -82,6 +103,20 @@ Each discussion builds on previous knowledge, creating increasingly valuable AI 
    ```
    "Load project memory and provide current context"
    ```
+
+### Command Line Options
+
+```bash
+project-memory-mcp [options]
+
+Options:
+  -r, --project-root <path>   Root directory of the project (default: current directory)
+  -m, --memory-dir <path>     Directory for memory files (default: .project_memory)
+  -v, --verbose               Enable verbose logging
+  -c, --config <path>         Configuration file path
+  -h, --help                  Display help information
+  --version                   Show version number
+```
 
 ### Usage Examples
 
@@ -130,7 +165,7 @@ Each discussion builds on previous knowledge, creating increasingly valuable AI 
 - **Standard Protocol**: Compatible with any MCP-enabled AI assistant
 - **Tool-Based Interface**: Clean, well-defined tool functions
 - **Error Handling**: Robust error handling and recovery
-- **Performance**: Optimized for fast context loading
+- **Performance**: Optimized for fast context loading and TypeScript type safety
 
 ## Available Tools
 
@@ -143,7 +178,30 @@ Each discussion builds on previous knowledge, creating increasingly valuable AI 
 | `update_priorities` | Manage project priorities | "Update priorities: 1. Fix auth, 2. Deploy" |
 | `search_memory` | Find relevant information | "Search for authentication solutions" |
 | `log_conversation_context` | Preserve session context | "Log: Implemented user management" |
-| `get_project_summary` | Generate AI context | "Provide complete project summary" |
+
+For detailed tool documentation and usage examples, see [docs/usage.md](docs/usage.md).
+
+## Memory Storage
+
+The server creates a `.project_memory` directory containing:
+
+- `project_memory.json` - Main memory database
+- `current_context.json` - Latest project context snapshot
+- `architecture_decisions.json` - Decision history
+- `working_solutions.json` - Solution database
+- `conversations.json` - Conversation logs
+- `backups/` - Automatic backup files
+
+## Project Type Detection
+
+The server automatically detects project types based on configuration files:
+
+- **Node.js/JavaScript**: `package.json`
+- **Python**: `requirements.txt`, `pyproject.toml`
+- **Rust**: `Cargo.toml`
+- **Go**: `go.mod`
+- **Java**: `pom.xml`, `build.gradle`
+- **Docker/Microservices**: `docker-compose.yml`
 
 ## Project Structure
 
@@ -151,24 +209,27 @@ Each discussion builds on previous knowledge, creating increasingly valuable AI 
 project-memory-mcp/
 ├── README.md                   # This file
 ├── LICENSE                     # MIT License
-├── setup.sh                    # Installation script
-├── run.sh                      # Server startup script
-├── requirements.txt            # Python dependencies
-├── src/
-│   ├── server.py              # Main MCP server
-│   ├── memory_manager.py      # Memory management logic
-│   └── tools.py               # MCP tool implementations
-├── docs/
+├── initialize_engramforge.py   # Project initialization script
+├── data/                       # Sample data and templates
+├── nodejs/                     # Node.js/TypeScript implementation
+│   ├── package.json           # Node.js dependencies
+│   ├── tsconfig.json          # TypeScript configuration
+│   ├── README.md              # Node.js specific documentation
+│   ├── src/                   # TypeScript source code
+│   │   ├── index.ts           # Main server entry point
+│   │   ├── server.ts          # MCP server implementation
+│   │   ├── memory-manager.ts  # Memory management logic
+│   │   └── types.ts           # TypeScript type definitions
+│   └── tests/                 # Test files (to be implemented)
+│       ├── memory-manager.test.ts  # Memory management tests
+│       ├── server.test.ts     # Server functionality tests
+│       └── integration.test.ts # Integration tests
+├── docs/                       # Documentation
 │   ├── installation.md        # Detailed installation guide
-│   ├── usage.md              # Comprehensive usage guide
-│   └── api.md                # API documentation
+│   └── usage.md              # Comprehensive usage guide
 ├── examples/
 │   ├── claude_desktop_config.json  # Claude Desktop MCP configuration
 │   └── project_config.json    # Project memory configuration example
-└── tests/
-    ├── test_memory.py         # Memory management tests
-    ├── test_tools.py          # Tool functionality tests
-    └── test_integration.py    # Integration tests
 ```
 
 ## Configuration
@@ -265,23 +326,32 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 1. **Clone and setup**:
    ```bash
    git clone https://github.com/yourusername/project-memory-mcp.git
-   cd project-memory-mcp
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
+   cd project-memory-mcp/nodejs
+   npm install
    ```
 
-2. **Run tests**:
+2. **Build the project**:
    ```bash
-   python -m pytest tests/
+   npm run build
    ```
 
-3. **Code quality**:
+3. **Development mode**:
    ```bash
-   black src/
-   flake8 src/
-   mypy src/
+   npm run dev
+   ```
+
+4. **Run tests** (when implemented):
+   ```bash
+   npm test
+   npm run test:watch
+   npm run test:coverage
+   ```
+
+5. **Code quality** (when linting is configured):
+   ```bash
+   npm run lint
+   npm run lint:fix
+   npm run type-check
    ```
 
 ## Roadmap
@@ -313,9 +383,17 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## Support
 
 - 📖 **Documentation**: [docs/](docs/)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/project-memory-mcp/issues)
+- � **Installation Guide**: [docs/installation.md](docs/installation.md)
+- 📚 **Usage Guide**: [docs/usage.md](docs/usage.md)
+- �🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/project-memory-mcp/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/project-memory-mcp/discussions)
-- 📧 **Email**: support@yourproject.com
+
+## Privacy and Security
+
+- All data is stored locally in your project directory
+- No external network connections except for npm package downloads
+- Memory files are human-readable JSON format
+- Add `.project_memory/` to `.gitignore` to exclude from version control
 
 ## License
 
