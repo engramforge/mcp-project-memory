@@ -90,7 +90,8 @@ export class MemoryManager {
   private async loadMemory(): Promise<ProjectMemory> {
     if (await fs.pathExists(this.memoryFile)) {
       try {
-        return await fs.readJson(this.memoryFile);
+        const loadedMemory = await fs.readJson(this.memoryFile);
+        return this.validateAndMigrateMemory(loadedMemory);
       } catch (error) {
         if (this.verbose) {
           console.error(`⚠️ Warning: Could not load memory file: ${error}`);
@@ -127,6 +128,44 @@ export class MemoryManager {
         last_updated: now
       }
     };
+  }
+
+  private validateAndMigrateMemory(memory: any): ProjectMemory {
+    const now = new Date().toISOString();
+    const projectName = path.basename(this.projectRoot);
+
+    // Ensure all required fields exist with proper types
+    const validatedMemory: ProjectMemory = {
+      project_info: {
+        name: memory?.project_info?.name || projectName,
+        type: memory?.project_info?.type || (this.config.auto_detect_project_type ? this.detectProjectType() : 'unknown'),
+        description: memory?.project_info?.description || '',
+        createdAt: memory?.project_info?.createdAt || now,
+        lastUpdated: memory?.project_info?.lastUpdated || now
+      },
+      implementation_status: {
+        overall_progress: memory?.implementation_status?.overall_progress || 'unknown',
+        components: memory?.implementation_status?.components || {}
+      },
+      architecture: {
+        technologies: Array.isArray(memory?.architecture?.technologies) ? memory.architecture.technologies : [],
+        decisions: Array.isArray(memory?.architecture?.decisions) ? memory.architecture.decisions : []
+      },
+      working_solutions: (memory?.working_solutions && typeof memory.working_solutions === 'object') ? memory.working_solutions : {},
+      current_priorities: Array.isArray(memory?.current_priorities) ? memory.current_priorities : [],
+      conversations: Array.isArray(memory?.conversations) ? memory.conversations : [],
+      metadata: {
+        version: memory?.metadata?.version || '1.0.0',
+        created_at: memory?.metadata?.created_at || now,
+        last_updated: now
+      }
+    };
+
+    if (this.verbose) {
+      console.error('✅ Memory structure validated and migrated if necessary');
+    }
+
+    return validatedMemory;
   }
 
   private detectProjectType(): string {
@@ -333,37 +372,43 @@ export class MemoryManager {
     const queryLower = query.toLowerCase();
     
     // Search architecture decisions
-    for (const decision of this.memory.architecture.decisions) {
-      if (decision.decision.toLowerCase().includes(queryLower) ||
-          decision.rationale.toLowerCase().includes(queryLower)) {
-        results.push({
-          type: 'decision',
-          relevance: this.calculateRelevance(queryLower, decision.decision + ' ' + decision.rationale),
-          data: decision
-        });
+    if (this.memory?.architecture?.decisions && Array.isArray(this.memory.architecture.decisions)) {
+      for (const decision of this.memory.architecture.decisions) {
+        if (decision?.decision?.toLowerCase().includes(queryLower) ||
+            decision?.rationale?.toLowerCase().includes(queryLower)) {
+          results.push({
+            type: 'decision',
+            relevance: this.calculateRelevance(queryLower, decision.decision + ' ' + decision.rationale),
+            data: decision
+          });
+        }
       }
     }
     
     // Search working solutions
-    for (const solution of Object.values(this.memory.working_solutions)) {
-      if (solution.problem.toLowerCase().includes(queryLower) ||
-          solution.solution.toLowerCase().includes(queryLower)) {
-        results.push({
-          type: 'solution',
-          relevance: this.calculateRelevance(queryLower, solution.problem + ' ' + solution.solution),
-          data: solution
-        });
+    if (this.memory?.working_solutions && typeof this.memory.working_solutions === 'object') {
+      for (const solution of Object.values(this.memory.working_solutions)) {
+        if (solution?.problem?.toLowerCase().includes(queryLower) ||
+            solution?.solution?.toLowerCase().includes(queryLower)) {
+          results.push({
+            type: 'solution',
+            relevance: this.calculateRelevance(queryLower, solution.problem + ' ' + solution.solution),
+            data: solution
+          });
+        }
       }
     }
     
     // Search conversations
-    for (const conversation of this.memory.conversations) {
-      if (conversation.summary.toLowerCase().includes(queryLower)) {
-        results.push({
-          type: 'conversation',
-          relevance: this.calculateRelevance(queryLower, conversation.summary),
-          data: conversation
-        });
+    if (this.memory?.conversations && Array.isArray(this.memory.conversations)) {
+      for (const conversation of this.memory.conversations) {
+        if (conversation?.summary?.toLowerCase().includes(queryLower)) {
+          results.push({
+            type: 'conversation',
+            relevance: this.calculateRelevance(queryLower, conversation.summary),
+            data: conversation
+          });
+        }
       }
     }
     

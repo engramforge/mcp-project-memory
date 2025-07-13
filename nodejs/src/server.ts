@@ -435,29 +435,6 @@ export class ProjectMemoryServer {
     };
   }
 
-  async start(): Promise<void> {
-    // Initialize memory manager
-    await this.memoryManager.initialize();
-
-    if (this.verbose) {
-      console.error('🚀 Starting MCP server...');
-      console.error('Tools available:');
-      const tools = this.getToolDefinitions();
-      for (const tool of tools) {
-        console.error(`  • ${tool.name} - ${tool.description}`);
-      }
-      console.error('');
-    }
-
-    // Create transport and run server
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-
-    if (this.verbose) {
-      console.error('✅ MCP server started successfully!');
-    }
-  }
-}
   private async handleClearMemory(args: any): Promise<CallToolResult> {
     const { scope = 'all', create_backup = true, confirm = false } = args;
     
@@ -483,3 +460,27 @@ export class ProjectMemoryServer {
       ]
     };
   }
+
+  async start(): Promise<void> {
+    // Initialize memory manager
+    await this.memoryManager.initialize();
+
+    if (this.verbose) {
+      console.error('🚀 Starting MCP server...');
+      console.error('Tools available:');
+      const tools = this.getToolDefinitions();
+      for (const tool of tools) {
+        console.error(`  • ${tool.name} - ${tool.description}`);
+      }
+      console.error('');
+    }
+
+    // Create transport and run server
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+
+    if (this.verbose) {
+      console.error('✅ MCP server started successfully!');
+    }
+  }
+}
