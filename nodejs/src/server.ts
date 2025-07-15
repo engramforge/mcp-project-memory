@@ -461,6 +461,71 @@ export class ProjectMemoryServer {
     };
   }
 
+  private formatSearchResults(results: any[]): string {
+    if (results.length === 0) {
+      return 'No results found.';
+    }
+
+    return results.map((result, index) => {
+      const header = `Result ${index + 1} (${result.type}) - Relevance: ${result.relevance}`;
+      const separator = '-'.repeat(header.length);
+      let content = '';
+
+      if (typeof result.data === 'string') {
+        content = result.data;
+      } else if (typeof result.data === 'object') {
+        content = JSON.stringify(result.data, null, 2);
+      } else {
+        content = String(result.data);
+      }
+
+      return `${header}\n${separator}\n${content}\n`;
+    }).join('\n');
+  }
+
+  private validateToolArguments(toolName: string, args: any): void {
+    const tools = this.getToolDefinitions();
+    const tool = tools.find(t => t.name === toolName);
+    
+    if (!tool) {
+      throw new Error(`Unknown tool: ${toolName}`);
+    }
+
+    const schema = tool.inputSchema;
+    const required = schema.properties ? (schema as any).required || [] : [];
+
+    // Check required properties
+    for (const requiredProp of required) {
+      if (!(requiredProp in args)) {
+        throw new Error(`Missing required argument: ${requiredProp}`);
+      }
+    }
+
+    // Validate specific tool arguments
+    switch (toolName) {
+      case 'update_implementation_status':
+        if (args.status && !['not_started', 'in_progress', 'complete', 'blocked', 'deprecated'].includes(args.status)) {
+          throw new Error(`Invalid status: ${args.status}`);
+        }
+        if (args.progress !== undefined && (args.progress < 0 || args.progress > 100)) {
+          throw new Error('Progress must be between 0 and 100');
+        }
+        break;
+      
+      case 'search_memory':
+        if (args.limit !== undefined && (args.limit < 1 || args.limit > 50)) {
+          throw new Error('Limit must be between 1 and 50');
+        }
+        break;
+      
+      case 'update_priorities':
+        if (!Array.isArray(args.priorities)) {
+          throw new Error('Priorities must be an array');
+        }
+        break;
+    }
+  }
+
   async start(): Promise<void> {
     // Initialize memory manager
     await this.memoryManager.initialize();
